@@ -36,11 +36,21 @@ class ScanDelegate(DefaultDelegate):
 def main():
     # Check device proximity
     while True:
+        time = datetime.datetime.now()
         scanner = Scanner().withDelegate(ScanDelegate())
-        devices = scanner.scan(60)  # Scans for n seconds, note that the minew beacons broadcasts every 2 seconds
+        devices = scanner.scan(60)  # Scans for n seconds, note that the Minew beacons broadcasts every 2 seconds
+        scanSummary = []
         for dev in devices:
-            if dev.addr in beaconAddr and dev.rssi > beaconThres:
-                googlesheet.append_row([scannerId, "{:%Y-%m-%d %H:%M}".format(datetime.datetime.now()), dev.addr, dev.rssi])
+            if (dev.addr in beaconAddr) and (dev.rssi > beaconThres):
+                scanAddr = list(item[0] for item in scanSummary)
+                if dev.addr not in [item[0] for item in scanSummary]:
+                    scanSummary.append([dev.addr, dev.rssi])
+                else:
+                    rownum = scanAddr.index(dev.addr):
+                    if dev.rssi > scanSummary[rownum][1]:
+                        scanSummary[rownum][1] = dev.rssi
+        for eachRow in scanSummary:
+            googlesheet.append_row([scannerId, "{:%Y-%m-%d %H:%M}".format(datetime.datetime.now()), eachRow[0], eachRow[1]])
 
 
 if __name__ == '__main__':
