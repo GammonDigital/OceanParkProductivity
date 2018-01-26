@@ -21,7 +21,7 @@ with open("/home/pi/Documents/Python/OceanParkProductivity/scannerId.txt", "r") 
 
 # gspread access spreadsheet
 scope = ['https://spreadsheets.google.com/feeds']
-credentials = ServiceAccountCredentials.from_json_keyfile_name('drive_client_secret.json', scope)
+credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/pi/Documents/Python/OceanParkProductivity/drive_client_secret.json', scope)
 gc = gspread.authorize(credentials)
 googlesheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1RvO3S0LzEts_X72-xVm2_SvPcJBnQUsdhH1YoKSimNo").sheet1
 
