@@ -49,8 +49,9 @@ def main():
                     rownum = scanAddr.index(dev.addr):
                     if dev.rssi > scanSummary[rownum][1]:
                         scanSummary[rownum][1] = dev.rssi
-        for eachRow in scanSummary:
-            googlesheet.append_row([scannerId, "{:%Y-%m-%d %H:%M}".format(datetime.datetime.now()), eachRow[0], eachRow[1]])
+        if len(scanSummary) > 0:
+            for eachRow in scanSummary:
+                googlesheet.append_row([scannerId, "{:%Y-%m-%d %H:%M}".format(datetime.datetime.now()), eachRow[0], eachRow[1]])
 
 
 if __name__ == '__main__':
