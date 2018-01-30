@@ -1,0 +1,1 @@
+sudo python3 /home/pi/Documents/Python/OceanParkProductivity/OceanParkProductivity.py
