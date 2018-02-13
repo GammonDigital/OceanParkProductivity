@@ -40,6 +40,9 @@ while True:
     if time.minute%30 == 0 and time.second < 10:
         gc = gspread.authorize(credentials)
         googlesheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1RvO3S0LzEts_X72-xVm2_SvPcJBnQUsdhH1YoKSimNo").sheet1
+        headers = gspread.httpsession.HTTPSession(headers={'Connection': 'Keep-Alive'})
+        gc = gspread.Client(auth=credentials, http_session=headers)
+        gc.login()
     scanner = Scanner().withDelegate(ScanDelegate())
     devices = scanner.scan(10)  # Scans for n seconds, note that the Minew beacons broadcasts every 2 seconds
     scanSummary = []
