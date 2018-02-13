@@ -37,6 +37,9 @@ class ScanDelegate(DefaultDelegate):
 # Check device proximity
 while True:
     time = datetime.datetime.now()
+    if time.minute%30 == 0 and time.second < 10:
+        gc = gspread.authorize(credentials)
+        googlesheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1RvO3S0LzEts_X72-xVm2_SvPcJBnQUsdhH1YoKSimNo").sheet1
     scanner = Scanner().withDelegate(ScanDelegate())
     devices = scanner.scan(10)  # Scans for n seconds, note that the Minew beacons broadcasts every 2 seconds
     scanSummary = []
@@ -51,5 +54,7 @@ while True:
                     scanSummary[rownum][1] = dev.rssi
     if len(scanSummary) > 0:
         for eachRow in scanSummary:
+            with open("/home/pi/Documents/Python/OceanParkProductivity/scanLog_oceanpark.csv", "a") as fscanlog:
+                fscanlog.write("{},{},{},{}\n".format(scannerId,str(time),eachRow[0],eachRow[1]))
             googlesheet.append_row([scannerId, "{:%Y-%m-%d %H:%M:%S}".format(time), eachRow[0], eachRow[1]])
 
