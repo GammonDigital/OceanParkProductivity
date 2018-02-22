@@ -7,6 +7,7 @@ import datetime
 import csv
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import os
 
 # Variables
 with open("/home/pi/Documents/Python/OceanParkProductivity/beaconReg.csv", "r") as fBeacon:  # Import registered beacons
@@ -37,27 +38,28 @@ class ScanDelegate(DefaultDelegate):
 # Check device proximity
 while True:
     time = datetime.datetime.now()
-    if time.minute%30 == 0 and time.second < 10:
-        gc = gspread.authorize(credentials)
-        googlesheet = gc.open_by_url("https://docs.google.com/spreadsheets/d/1RvO3S0LzEts_X72-xVm2_SvPcJBnQUsdhH1YoKSimNo").sheet1
-        headers = gspread.httpsession.HTTPSession(headers={'Connection': 'Keep-Alive'})
-        gc = gspread.Client(auth=credentials, http_session=headers)
-        gc.login()
-    scanner = Scanner().withDelegate(ScanDelegate())
-    devices = scanner.scan(10)  # Scans for n seconds, note that the Minew beacons broadcasts every 2 seconds
-    scanSummary = []
-    for dev in devices:
-        if (dev.addr in beaconAddr) and (dev.rssi > beaconThres):
-            scanAddr = list(item[0] for item in scanSummary)
-            if dev.addr not in [item[0] for item in scanSummary]:
-                scanSummary.append([dev.addr, dev.rssi])
-            else:
-                rownum = scanAddr.index(dev.addr)
-                if dev.rssi > scanSummary[rownum][1]:
-                    scanSummary[rownum][1] = dev.rssi
-    if len(scanSummary) > 0:
-        for eachRow in scanSummary:
-            with open("/home/pi/Documents/Python/OceanParkProductivity/scanLog_oceanpark.csv", "a") as fscanlog:
-                fscanlog.write("{},{},{},{}\n".format(scannerId,str(time),eachRow[0],eachRow[1]))
-            googlesheet.append_row([scannerId, "{:%Y-%m-%d %H:%M:%S}".format(time), eachRow[0], eachRow[1]])
+    try:
+        scanner = Scanner().withDelegate(ScanDelegate())
+        devices = scanner.scan(10)  # Scans for n seconds, note that the Minew beacons broadcasts every 2 seconds
+        scanSummary = []
+        for dev in devices:
+            if (dev.addr in beaconAddr) and (dev.rssi > beaconThres):
+                scanAddr = list(item[0] for item in scanSummary)
+                if dev.addr not in [item[0] for item in scanSummary]:
+                    scanSummary.append([dev.addr, dev.rssi])
+                else:
+                    rownum = scanAddr.index(dev.addr)
+                    if dev.rssi > scanSummary[rownum][1]:
+                        scanSummary[rownum][1] = dev.rssi
+        if len(scanSummary) > 0:
+            for eachRow in scanSummary:
+                with open("/home/pi/Documents/Python/OceanParkProductivity/scanLog_oceanpark.csv", "a") as fscanlog:
+                    fscanlog.write("{},{},{},{}\n".format(scannerId,str(time),eachRow[0],eachRow[1]))
+                try:
+                    gc.login()
+                    googlesheet.append_row([scannerId, str(time), eachRow[0], eachRow[1]])
+                except:
+                    os.system("sudo reboot")
+    except:
+        os.system("sudo reboot")
 
