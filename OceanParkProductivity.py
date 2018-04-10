@@ -41,25 +41,26 @@ while True:
     try:
         scanner = Scanner().withDelegate(ScanDelegate())
         devices = scanner.scan(10)  # Scans for n seconds, note that the Minew beacons broadcasts every 2 seconds
-        scanSummary = []
-        for dev in devices:
-            if (dev.addr in beaconAddr) and (dev.rssi > beaconThres):
-                scanAddr = list(item[0] for item in scanSummary)
-                if dev.addr not in [item[0] for item in scanSummary]:
-                    scanSummary.append([dev.addr, dev.rssi])
-                else:
-                    rownum = scanAddr.index(dev.addr)
-                    if dev.rssi > scanSummary[rownum][1]:
-                        scanSummary[rownum][1] = dev.rssi
-        if len(scanSummary) > 0:
-            for eachRow in scanSummary:
-                with open("/home/pi/Documents/Python/OceanParkProductivity/scanLog_oceanpark.csv", "a") as fscanlog:
-                    fscanlog.write("{},{},{},{}\n".format(scannerId,str(time),eachRow[0],eachRow[1]))
-                try:
-                    gc.login()
-                    googlesheet.append_row([scannerId, str(time), eachRow[0], eachRow[1]])
-                except:
-                    os.system("sudo reboot")
-    except:
+    except Exception:
         os.system("sudo reboot")
+    scanSummary = []
+    for dev in devices:
+        if (dev.addr in beaconAddr) and (dev.rssi > beaconThres):
+            scanAddr = list(item[0] for item in scanSummary)
+            if dev.addr not in [item[0] for item in scanSummary]:
+                scanSummary.append([dev.addr, dev.rssi])
+            else:
+                rownum = scanAddr.index(dev.addr)
+                if dev.rssi > scanSummary[rownum][1]:
+                    scanSummary[rownum][1] = dev.rssi
+    if len(scanSummary) > 0:
+        for eachRow in scanSummary:
+            with open("/home/pi/Documents/Python/OceanParkProductivity/scanLog_oceanpark.csv", "a") as fscanlog:
+                fscanlog.write("{},{},{},{}\n".format(scannerId,str(time),eachRow[0],eachRow[1]))
+            try:
+                gc.login()
+                googlesheet.append_row([scannerId, str(time), eachRow[0], eachRow[1]])
+            except Exception:
+                os.system("sudo reboot")
+
 

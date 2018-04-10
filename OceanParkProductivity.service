@@ -1,0 +1,13 @@
+[Unit]
+Description=My service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u OceanParkProductivity.py
+WorkingDirectory=/home/pi/Documents/Python/OceanParkProductivity/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
